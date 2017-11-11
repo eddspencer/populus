@@ -84,5 +84,5 @@ val ga = StringGeneticSolver(config, target)
 val (pool, generations) = ga.evolution()
 ```
 
-The resulting pool is all the chromosomes of the last generation (potention matches to tartget
+The resulting pool is all the chromosomes of the last generation (potential matches to target
 string) ordered by their fitness score descending. So you should find that `pool.head == target`.
