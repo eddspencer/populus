@@ -14,6 +14,7 @@
  * limitations under the License.
  */
 name := "populus"
+organization := "sh.espencer"
 version := "0.1"
 
 scalaVersion := "2.11.11"
