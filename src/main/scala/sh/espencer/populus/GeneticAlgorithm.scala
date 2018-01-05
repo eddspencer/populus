@@ -88,10 +88,25 @@ trait IterableGeneticAlgorithm[Gene] extends GeneticAlgorithm[Gene, Iterable[Gen
   with GeneticSolver[Gene, Iterable[Gene]]
   with GeneticOperations[Gene, Iterable[Gene]] {
 
+  /**
+    * Chromosome size as a method in case it is not static
+    *
+    * @return the chromosome size
+    */
   protected def chromosomeSize(): Int
 
+  /**
+    * If some sticky genes are set then will always be included in every chromosome
+    */
+  val stickyGenes: Iterable[Gene] = Iterable.empty
+
+  /**
+    * Cache the size of sticky genes in case the iterable re-calculates
+    */
+  private lazy val numStickyGenes: Int = stickyGenes.size
+
   override protected def toChromosome(genes: Stream[Gene]): Iterable[Gene] = {
-    genes.take(chromosomeSize())
+    stickyGenes ++ genes.take(chromosomeSize() - numStickyGenes)
   }
 
   override protected def fromChromosome(chromosome: Iterable[Gene]): Stream[Gene] = {
