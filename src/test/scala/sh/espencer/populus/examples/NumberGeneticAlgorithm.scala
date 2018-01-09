@@ -21,8 +21,8 @@ import sh.espencer.populus.{GeneticConfig, IterableGeneticAlgorithm}
   * Finds a list of numbers that add up to 42
   */
 class NumberGeneticAlgorithm(
-  val chromosomeSize: Int = 3,
-  override val stickyGenes: Iterable[Int] = Iterable.empty
+  override val chromosomeSize: Int = 3,
+  override val stickyGenes: Set[Int] = Set.empty
 )
   extends IterableGeneticAlgorithm[Int] {
 

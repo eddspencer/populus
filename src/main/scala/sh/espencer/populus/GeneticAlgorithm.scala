@@ -98,15 +98,19 @@ trait IterableGeneticAlgorithm[Gene] extends GeneticAlgorithm[Gene, Iterable[Gen
   /**
     * If some sticky genes are set then will always be included in every chromosome
     */
-  val stickyGenes: Iterable[Gene] = Iterable.empty
+  val stickyGenes: Set[Gene] = Set.empty
 
   /**
     * Cache the size of sticky genes in case the iterable re-calculates
     */
   private lazy val numStickyGenes: Int = stickyGenes.size
 
-  override protected def toChromosome(genes: Stream[Gene]): Iterable[Gene] = {
-    stickyGenes ++ genes.take(chromosomeSize() - numStickyGenes)
+  override def toChromosome(genes: Stream[Gene]): Iterable[Gene] = {
+    val newGenes = genes
+      .filter(!stickyGenes.contains(_))
+      .take(Math.max(0, chromosomeSize() - numStickyGenes))
+    val chromosome = newGenes ++ stickyGenes
+    chromosome
   }
 
   override protected def fromChromosome(chromosome: Iterable[Gene]): Stream[Gene] = {

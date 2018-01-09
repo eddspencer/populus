@@ -22,11 +22,22 @@ class TestGeneticAlgorithm extends WordSpec with Matchers {
 
   "IterableGeneticAlgorithm" should {
     "always include sticky genes" in {
-      val ga = new NumberGeneticAlgorithm(stickyGenes = Iterable(42))
+      val ga = new NumberGeneticAlgorithm(stickyGenes = Set(17))
+      val (pool, _) = ga.evolution()
+      pool.head.sum shouldEqual 42
+      pool.foreach(chromosome => {
+        chromosome should contain(17)
+      })
+    }
+
+    "only include one of each sticky genes" in {
+      val ga = new NumberGeneticAlgorithm(stickyGenes = Set(1, 2))
       val (pool, _) = ga.evolution()
       pool.foreach(chromosome => {
-        chromosome should contain(42)
-        chromosome.size shouldEqual 3
+        chromosome should contain(1)
+        chromosome should contain(2)
+        chromosome.count(_ === 1) shouldEqual 1
+        chromosome.count(_ === 2) shouldEqual 1
       })
     }
   }
