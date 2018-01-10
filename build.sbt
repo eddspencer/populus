@@ -38,3 +38,11 @@ libraryDependencies ++= Seq(
 
 testFrameworks += new TestFramework("org.scalameter.ScalaMeterFramework")
 parallelExecution in Test := false
+
+// Define build task to do scalastyle, compile and tests
+val buildAll = taskKey[Unit]("Main build task")
+buildAll := Def.sequential(
+  test.in(Test),
+  scalastyle.in(Compile).toTask(""),
+  scalastyle.in(Test).toTask("")
+).value
