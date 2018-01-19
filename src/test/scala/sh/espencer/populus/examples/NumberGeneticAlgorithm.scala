@@ -15,7 +15,7 @@
  */
 package sh.espencer.populus.examples
 
-import sh.espencer.populus.{GeneticConfig, IterableGeneticAlgorithm}
+import sh.espencer.populus.{GeneticConfigWithStop, IterableGeneticAlgorithm, SimpleStopCondition}
 
 /**
   * Finds a list of numbers that add up to 42
@@ -23,11 +23,11 @@ import sh.espencer.populus.{GeneticConfig, IterableGeneticAlgorithm}
 class NumberGeneticAlgorithm(
   override val chromosomeSize: Int = 3,
   override val stickyGenes: Set[Int] = Set.empty
-)
-  extends IterableGeneticAlgorithm[Int] {
+) extends IterableGeneticAlgorithm[Int]
+  with SimpleStopCondition[Int, Iterable[Int]] {
 
   // Set high mutation and crossover rates for testing
-  val config = GeneticConfig(0.9, 0.7, 0.7, 1000)
+  val config = GeneticConfigWithStop(0.9, 0.7, 0.7, 1000, 1.0, 1000)
 
   override protected val genePool: Array[Int] = {
     (0 to 100).toArray
@@ -36,10 +36,6 @@ class NumberGeneticAlgorithm(
   override protected def fitness(chromosome: Iterable[Int]): Double = {
     val sum = chromosome.sum
     if (sum > 42) 0 else sum.toDouble / 42
-  }
-
-  override protected def stopCondition(pool: Pool, generation: Int): Boolean = {
-    pool.head.sum == 42 || generation > 1000
   }
 
 }
