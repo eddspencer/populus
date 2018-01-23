@@ -33,7 +33,7 @@ class NumberGeneticAlgorithm(
     (0 to 100).toArray
   }
 
-  override protected def fitness(chromosome: Iterable[Int]): Double = {
+  override def fitness(chromosome: Iterable[Int]): Double = {
     val sum = chromosome.sum
     if (sum > 42) 0 else sum.toDouble / 42
   }

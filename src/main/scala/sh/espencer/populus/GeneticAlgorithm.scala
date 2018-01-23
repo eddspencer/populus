@@ -35,7 +35,7 @@ trait GeneticAlgorithm[Gene, Chromosome] {
     * @param chromosome chromosome to score
     * @return the score
     */
-  protected def fitness(chromosome: Chromosome): Double
+  def fitness(chromosome: Chromosome): Double
 
   /**
     * Stop condition defines when to stop evolution
