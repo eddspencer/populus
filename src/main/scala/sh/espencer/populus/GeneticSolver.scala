@@ -15,6 +15,8 @@
  */
 package sh.espencer.populus
 
+import sh.espencer.populus.stats.{GeneticStatsKeys, HasStats}
+
 import scala.annotation.tailrec
 
 /**
@@ -25,7 +27,7 @@ import scala.annotation.tailrec
   * @tparam Chromosome type of chromosome
   * @author Edd Spencer
   */
-trait GeneticSolver[Gene, Chromosome] {
+trait GeneticSolver[Gene, Chromosome] extends HasStats {
 
   this: GeneticAlgorithm[Gene, Chromosome]
     with GeneticOperations[Gene, Chromosome]
@@ -66,7 +68,7 @@ trait GeneticSolver[Gene, Chromosome] {
     *
     * @return new pool of chromosomes
     */
-  protected[populus] def randomPool(): Pool = {
+  protected[populus] def randomPool(): Pool = time(GeneticStatsKeys.randomPool.toString) {
     for {_ <- 1 to config.populationSize} yield toChromosome(geneStream)
   }
 
@@ -78,11 +80,11 @@ trait GeneticSolver[Gene, Chromosome] {
     * @return new pool of the next generation
     */
   protected[populus] def reProduction(pool: Pool): Pool = {
-    if (pool.size < 3) {
+    if (pool.lengthCompare(3) < 0) {
       pool
     } else {
       val selection = select(pool)
-      val crossed = crossover(selection)
+      val crossed = crossoverPool(selection)
       mutatePool(crossed)
     }
   }
@@ -102,7 +104,7 @@ trait GeneticSolver[Gene, Chromosome] {
     * @param pool source pool
     * @return new pool of fittest chromosomes
     */
-  protected[populus] def select(pool: Pool): Pool = {
+  protected[populus] def select(pool: Pool): Pool = time(GeneticStatsKeys.select.toString) {
     val n = Math.min(config.populationSize, percentageToIndex(pool.size, config.selectionCutOff))
     pool.sortBy(unfitness).take(n)
   }

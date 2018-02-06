@@ -55,7 +55,7 @@ class TestGeneticSolver extends WordSpec with Matchers {
           pool
         }
 
-        override def crossover(pool: Pool): Pool = {
+        override def crossoverPool(pool: Pool): Pool = {
           crossoverCalled = System.currentTimeMillis
           pool
         }

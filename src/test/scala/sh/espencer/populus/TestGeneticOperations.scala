@@ -27,14 +27,14 @@ class TestGeneticOperations extends WordSpec with Matchers {
 
       "do nothing on small pool" in {
         val pool = Seq(Iterable(1, 3, 4))
-        val crossed = new NumberGeneticAlgorithm().crossover(pool)
+        val crossed = new NumberGeneticAlgorithm().crossoverPool(pool)
         crossed shouldEqual pool
       }
 
       "increase population by crossover rate" in {
         val ga = new NumberGeneticAlgorithm()
         val pool = ga.randomPool()
-        val crossed = ga.crossover(pool)
+        val crossed = ga.crossoverPool(pool)
         val growth = crossed.size - pool.size
         growth should be > 0
       }
@@ -48,7 +48,7 @@ class TestGeneticOperations extends WordSpec with Matchers {
           ): (Chromosome, Chromosome) = (nextGeneration, nextGeneration)
         }
         val pool = ga.randomPool()
-        val crossed = ga.crossover(pool)
+        val crossed = ga.crossoverPool(pool)
 
         val growth = crossed.size - pool.size
         val nextGenSize = crossed.count(_.eq(nextGeneration))

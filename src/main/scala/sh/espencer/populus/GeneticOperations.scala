@@ -15,6 +15,8 @@
  */
 package sh.espencer.populus
 
+import sh.espencer.populus.stats.{GeneticStatsKeys, HasStats}
+
 import scala.util.Random
 
 /**
@@ -28,7 +30,9 @@ import scala.util.Random
   */
 trait GeneticOperations[Gene, Chromosome] {
 
-  this: GeneticAlgorithm[Gene, Chromosome] with GeneProducer[Gene] =>
+  this: GeneticAlgorithm[Gene, Chromosome]
+    with GeneProducer[Gene]
+    with HasStats =>
 
   val config: HasGeneticConfig
 
@@ -41,7 +45,9 @@ trait GeneticOperations[Gene, Chromosome] {
     * @param pool source pool
     * @return new pool
     */
-  protected[populus] def crossover(pool: Pool): Pool = {
+  protected[populus] def crossoverPool(
+    pool: Pool
+  ): Pool = time(GeneticStatsKeys.crossoverPool.toString) {
     val size = pool.size
     if (size > 1) {
       val mid = size >> 1
@@ -70,7 +76,10 @@ trait GeneticOperations[Gene, Chromosome] {
     * @param c2 chromosome 2
     * @return new pair of chromosomes
     */
-  protected[populus] def crossover(c1: Chromosome, c2: Chromosome): (Chromosome, Chromosome) = {
+  protected[populus] def crossover(
+    c1: Chromosome,
+    c2: Chromosome
+  ): (Chromosome, Chromosome) = time(GeneticStatsKeys.crossover.toString) {
     val s1 = fromChromosome(c1)
     val s2 = fromChromosome(c2)
     val offSprings = s1.zip(s2).map {
@@ -87,7 +96,9 @@ trait GeneticOperations[Gene, Chromosome] {
     * @param pool pool to mutate
     * @return new mutated pool
     */
-  protected[populus] def mutatePool(pool: Pool): Pool = {
+  protected[populus] def mutatePool(
+    pool: Pool
+  ): Pool = time(GeneticStatsKeys.mutatePool.toString) {
     val mutations = for (chromosome <- pool if config.mutationRate > Random.nextFloat) yield {
       mutate(chromosome)
     }
@@ -101,7 +112,9 @@ trait GeneticOperations[Gene, Chromosome] {
     * @param chromosome starting chromosome
     * @return new mutated chromosome
     */
-  protected[populus] def mutate(chromosome: Chromosome): Chromosome = {
+  protected[populus] def mutate(
+    chromosome: Chromosome
+  ): Chromosome = time(GeneticStatsKeys.mutate.toString) {
     val mutated = fromChromosome(chromosome).map(gene =>
       if (config.mutationRate > Random.nextFloat) geneStream.head else gene
     )
