@@ -15,7 +15,7 @@
  */
 package sh.espencer.populus
 
-import sh.espencer.populus.stats.{GeneticStatsKeys, HasStats}
+import sh.espencer.populus.stats.{GeneticStatsKeys, HasGeneticStats}
 
 import scala.util.Random
 
@@ -32,7 +32,7 @@ trait GeneticOperations[Gene, Chromosome] {
 
   this: GeneticAlgorithm[Gene, Chromosome]
     with GeneProducer[Gene]
-    with HasStats =>
+    with HasGeneticStats =>
 
   val config: HasGeneticConfig
 

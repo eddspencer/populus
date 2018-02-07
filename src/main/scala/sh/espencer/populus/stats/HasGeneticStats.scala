@@ -22,12 +22,17 @@ import scala.collection.mutable
 /**
   * Trait to add stats functions to object
   */
-trait HasStats {
+trait HasGeneticStats {
 
   /**
-    * This object stores all the timing information of the run
+    * Map of stats, created after run is complete
     */
-  val stats: mutable.Map[String, DescriptiveStatistics] = mutable.Map.empty
+  lazy val stats: Map[String, GeneticStats] = statsDescriptive.mapValues(toStat).toMap
+
+  /**
+    * Map of descriptive statistics accumulated throughout run
+    */
+  private val statsDescriptive: mutable.Map[String, DescriptiveStatistics] = mutable.Map.empty
 
   /**
     * Whether profiling is enabled
@@ -35,6 +40,26 @@ trait HasStats {
     * @return enabled
     */
   def statsEnabled: Boolean = false
+
+  /**
+    * At the end of processing this is called to convert the gathered stats
+    *
+    * @param statDesc gathered stats
+    * @return geneti stats
+    */
+  def toStat(statDesc: DescriptiveStatistics): GeneticStats = {
+    SimpleGeneticStats(
+      statDesc.getMin,
+      statDesc.getMax,
+      statDesc.getMean,
+      statDesc.getN,
+      statDesc.getSum,
+      statDesc.getVariance,
+      statDesc.getPercentile(25),
+      statDesc.getPercentile(50),
+      statDesc.getPercentile(75)
+    )
+  }
 
   /**
     * Map allowing you to override particular stats
@@ -54,7 +79,7 @@ trait HasStats {
       val start = System.nanoTime()
       val result = block // call-by-name
       val end = System.nanoTime()
-      stats.getOrElseUpdate(key, new DescriptiveStatistics()).addValue((end - start).toDouble)
+      statsDescriptive.getOrElseUpdate(key, new DescriptiveStatistics()).addValue((end - start).toDouble)
       result
     } else {
       block

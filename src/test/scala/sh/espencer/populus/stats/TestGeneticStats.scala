@@ -15,39 +15,46 @@
  */
 package sh.espencer.populus.stats
 
-import org.apache.commons.math3.stat.descriptive.DescriptiveStatistics
 import org.scalatest.{Matchers, WordSpec}
 import sh.espencer.populus.examples.NumberGeneticAlgorithm
-
-import scala.collection.mutable
 
 class TestGeneticStats extends WordSpec with Matchers {
 
   "HasStats" should {
     "time block" in {
-      val hasStats = new HasStats {
+      val hasStats = new HasGeneticStats {
         override def statsEnabled: Boolean = true
       }
       hasStats.time("test")(1 + 11)
-      hasStats.stats("test").getN shouldEqual 1
+      hasStats.stats("test").count shouldEqual 1
     }
 
     "disabled by default" in {
-      val hasStats = new HasStats {}
+      val hasStats = new HasGeneticStats {}
       hasStats.time("test")(1 + 11)
       hasStats.stats.size shouldEqual 0
     }
 
     "allow key specific overrides" in {
-      val hasStats = new HasStats {}
+      val hasStats = new HasGeneticStats {}
       hasStats.statsEnabledByKey += ("test" -> true)
       hasStats.time("test")(1 + 11)
-      hasStats.stats("test").getN shouldEqual 1
+      hasStats.stats("test").count shouldEqual 1
+    }
+  }
+
+  "GeneticStats" should {
+    "Format stats correctly" in {
+      SimpleGeneticStats(1, 2, 3, 4, 5, 6, 7, 8, 9).toString shouldEqual
+        "| min            1.00 | max            2.00 | mean            2.00 | " +
+          "count               4 | sum            5.00 | var            6.00 | per25            " +
+          "7.00 | per50            8.00 | per75            9.00 |"
+
     }
   }
 
   "GeneticAlgorithm Stats" should {
-    def run(): (mutable.Map[String, DescriptiveStatistics], Int) = {
+    def run(): (Map[String, GeneticStats], Int) = {
       val ga = new NumberGeneticAlgorithm() {
         override def statsEnabled: Boolean = true
       }
@@ -65,29 +72,29 @@ class TestGeneticStats extends WordSpec with Matchers {
       }
 
       val (_, generations) = ga.evolution()
-      ga.stats("fitness").getN should be >= 0L
+      ga.stats("fitness").count should be >= 0L
     }
 
     "profile selects" in {
       val (profile, generations) = run()
-      profile(GeneticStatsKeys.select.toString).getN shouldEqual generations
+      profile(GeneticStatsKeys.select.toString).count shouldEqual generations
     }
 
     "profile crossovers" in {
       val (profile, generations) = run()
-      profile(GeneticStatsKeys.crossover.toString).getN should be > generations.toLong
-      profile(GeneticStatsKeys.crossoverPool.toString).getN shouldEqual generations
+      profile(GeneticStatsKeys.crossover.toString).count should be > generations.toLong
+      profile(GeneticStatsKeys.crossoverPool.toString).count shouldEqual generations
     }
 
     "profile mutations" in {
       val (profile, generations) = run()
-      profile(GeneticStatsKeys.mutate.toString).getN should be > generations.toLong
-      profile(GeneticStatsKeys.mutatePool.toString).getN shouldEqual generations
+      profile(GeneticStatsKeys.mutate.toString).count should be > generations.toLong
+      profile(GeneticStatsKeys.mutatePool.toString).count shouldEqual generations
     }
 
     "profile randomPool" in {
       val (profile, generations) = run()
-      profile(GeneticStatsKeys.randomPool.toString).getN shouldEqual 1
+      profile(GeneticStatsKeys.randomPool.toString).count shouldEqual 1
     }
   }
 }

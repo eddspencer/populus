@@ -15,7 +15,7 @@
  */
 package sh.espencer.populus
 
-import sh.espencer.populus.stats.{GeneticStatsKeys, HasStats}
+import sh.espencer.populus.stats.{GeneticStatsKeys, HasGeneticStats}
 
 import scala.annotation.tailrec
 
@@ -27,7 +27,7 @@ import scala.annotation.tailrec
   * @tparam Chromosome type of chromosome
   * @author Edd Spencer
   */
-trait GeneticSolver[Gene, Chromosome] extends HasStats {
+trait GeneticSolver[Gene, Chromosome] extends HasGeneticStats {
 
   this: GeneticAlgorithm[Gene, Chromosome]
     with GeneticOperations[Gene, Chromosome]
