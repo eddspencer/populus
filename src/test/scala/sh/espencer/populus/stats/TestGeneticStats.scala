@@ -15,6 +15,8 @@
  */
 package sh.espencer.populus.stats
 
+import java.util.concurrent.TimeUnit
+
 import org.scalatest.{Matchers, WordSpec}
 import sh.espencer.populus.examples.NumberGeneticAlgorithm
 
@@ -45,10 +47,11 @@ class TestGeneticStats extends WordSpec with Matchers {
 
   "GeneticStats" should {
     "Format stats correctly" in {
-      SimpleGeneticStats(1, 2, 3, 4, 5, 6, 7, 8, 9).toString shouldEqual
-        "| min            1.00 | max            2.00 | mean            2.00 | " +
-          "count               4 | sum            5.00 | var            6.00 | per25            " +
-          "7.00 | per50            8.00 | per75            9.00 |"
+      SimpleGeneticStats(1000000, 2000000, 3000000, 4, 5000000, 6000000, 7000000, 8000000, 9000000)
+        .toString(TimeUnit.MILLISECONDS) shouldEqual
+        "| min               1 | max               2 | mean               3 | " +
+          "count               4 | sum               5 | var               6 | per25            " +
+          "   7 | per50               8 | per75               9 |"
 
     }
   }

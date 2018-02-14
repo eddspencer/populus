@@ -49,15 +49,15 @@ trait HasGeneticStats {
     */
   def toStat(statDesc: DescriptiveStatistics): GeneticStats = {
     SimpleGeneticStats(
-      statDesc.getMin,
-      statDesc.getMax,
-      statDesc.getMean,
+      statDesc.getMin.toLong,
+      statDesc.getMax.toLong,
+      statDesc.getMean.toLong,
       statDesc.getN,
-      statDesc.getSum,
-      statDesc.getVariance,
-      statDesc.getPercentile(25),
-      statDesc.getPercentile(50),
-      statDesc.getPercentile(75)
+      statDesc.getSum.toLong,
+      statDesc.getVariance.toLong,
+      statDesc.getPercentile(25).toLong,
+      statDesc.getPercentile(50).toLong,
+      statDesc.getPercentile(75).toLong
     )
   }
 

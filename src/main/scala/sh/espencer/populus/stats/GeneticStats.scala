@@ -15,29 +15,49 @@
  */
 package sh.espencer.populus.stats
 
+import java.util.concurrent.TimeUnit
+
+import scala.concurrent.duration.TimeUnit
+
 /**
   * Trait of statistics object, can be extended as required
   */
 trait GeneticStats {
-  val min: Double
-  val max: Double
-  val mean: Double
+  val min: Long
+  val max: Long
+  val mean: Long
   val count: Long
-  val sum: Double
-  val variance: Double
-  val percentile25: Double
-  val percentile50: Double
-  val percentile75: Double
+  val sum: Long
+  val variance: Long
+  val percentile25: Long
+  val percentile50: Long
+  val percentile75: Long
 
-  /**
-    * Convert to string with standard spacing so can easily compare values
-    *
-    * @return string representation of data
-    */
-  override def toString: String = {
-    f"| min $min%15.2f | max $max%15.2f | mean $max%15.2f | count $count%15d | sum $sum%15.2f | " +
-      f"var $variance%15.2f | per25 $percentile25%15.2f | per50 $percentile50%15.2f | " +
-      f"per75 $percentile75%15.2f |"
+  private def convert(x: Long, timeUnit: TimeUnit): Long = {
+    timeUnit.convert(x, TimeUnit.NANOSECONDS)
+  }
+
+  def min(timeUnit: TimeUnit): Long = convert(min, timeUnit)
+
+  def max(timeUnit: TimeUnit): Long = convert(max, timeUnit)
+
+  def mean(timeUnit: TimeUnit): Long = convert(mean, timeUnit)
+
+  def sum(timeUnit: TimeUnit): Long = convert(sum, timeUnit)
+
+  def variance(timeUnit: TimeUnit): Long = convert(variance, timeUnit)
+
+  def percentile25(timeUnit: TimeUnit): Long = convert(percentile25, timeUnit)
+
+  def percentile50(timeUnit: TimeUnit): Long = convert(percentile50, timeUnit)
+
+  def percentile75(timeUnit: TimeUnit): Long = convert(percentile75, timeUnit)
+
+  def toString(timeUnit: TimeUnit): String = {
+    f"| min ${min(timeUnit)}%15d | max ${max(timeUnit)}%15d | mean ${mean(timeUnit)}%15d " +
+      f"| count $count%15d | sum ${sum(timeUnit)}%15d " +
+      f"| var ${variance(timeUnit)}%15d | per25 ${percentile25(timeUnit)}%15d " +
+      f"| per50 ${percentile50(timeUnit)}%15d | per75 ${percentile75(timeUnit)}%15d |"
   }
 }
 
@@ -45,13 +65,13 @@ trait GeneticStats {
   * Standard statistics object
   */
 case class SimpleGeneticStats(
-  min: Double,
-  max: Double,
-  mean: Double,
+  min: Long,
+  max: Long,
+  mean: Long,
   count: Long,
-  sum: Double,
-  variance: Double,
-  percentile25: Double,
-  percentile50: Double,
-  percentile75: Double
+  sum: Long,
+  variance: Long,
+  percentile25: Long,
+  percentile50: Long,
+  percentile75: Long
 ) extends GeneticStats
