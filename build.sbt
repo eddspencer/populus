@@ -15,7 +15,7 @@
  */
 name := "populus"
 organization := "sh.espencer"
-version := "0.3.5"
+version := "0.3.9"
 
 scalaVersion := "2.11.11"
 

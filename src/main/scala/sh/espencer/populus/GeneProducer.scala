@@ -46,8 +46,10 @@ trait RandomGeneProducer[G] extends GeneProducer[G] with HasGeneticStats {
 
   protected val genePool: Array[G]
 
+  lazy val length: Int = genePool.length
+
   override protected[populus] def geneStream: Stream[G] =
     time(GeneticStatsKeys.geneStream.toString) {
-    genePool(Random.nextInt(genePool.length)) #:: geneStream
-  }
+      genePool(Random.nextInt(length)) #:: geneStream
+    }
 }
