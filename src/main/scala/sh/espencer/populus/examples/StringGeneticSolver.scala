@@ -16,7 +16,7 @@
 package sh.espencer.populus.examples
 
 import sh.espencer.populus.trainer.ParameterTrainer
-import sh.espencer.populus.{GeneticConfig, StandardGeneticAlgorithm}
+import sh.espencer.populus.{Chromosome, GeneticConfig, StandardGeneticAlgorithm}
 
 /**
   * Simple string genetic algorithm that mutates a string until it creates the target string
@@ -72,7 +72,7 @@ case class StringGeneticSolver(config: GeneticConfig, target: String)
     * @return whether to stop
     */
   override def stopCondition(pool: Pool, generation: Int): Boolean = {
-    pool.head == target || generation >= 1000
+    pool.head.data == target || generation >= 1000
   }
 }
 
@@ -87,5 +87,5 @@ object StringParameterTrainer extends ParameterTrainer[Char, String] {
 
   override protected def createSolver(config: GeneticConfig) = StringGeneticSolver(config, target)
 
-  override protected def success(pool: Seq[String]): Boolean = pool.head == target
+  override protected def success(pool: Seq[Chromosome[String]]): Boolean = pool.head.data == target
 }

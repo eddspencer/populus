@@ -32,7 +32,7 @@ class TestStringGeneticSolver extends WordSpec with Matchers {
       val ga = StringGeneticSolver(config, target)
       val (pool, generations) = ga.evolution()
       generations should be < 1000
-      pool.head should be(target)
+      pool.head.data should be(target)
     }
   }
 }

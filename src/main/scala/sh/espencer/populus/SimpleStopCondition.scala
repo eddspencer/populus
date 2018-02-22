@@ -35,12 +35,12 @@ case class GeneticConfigWithStop(
 /**
   * This trait defines a stop condition of a desired fitness level and a generation hard cap
   *
-  * @tparam Gene       type of gene
-  * @tparam Chromosome type of chromosome
+  * @tparam G type of gene
+  * @tparam C type of chromosome
   */
-trait SimpleStopCondition[Gene, Chromosome] {
+trait SimpleStopCondition[G, C] {
 
-  this: GeneticAlgorithm[Gene, Chromosome] =>
+  this: GeneticAlgorithm[G, C] =>
 
   val config: HasGeneticConfigWithStop
 
@@ -52,7 +52,7 @@ trait SimpleStopCondition[Gene, Chromosome] {
     * @return
     */
   override protected def stopCondition(pool: Pool, generation: Int): Boolean = {
-    fitness(pool.head) >= config.requiredFitness || generation == config.generationCap
+    pool.head.fitness >= config.requiredFitness || generation == config.generationCap
   }
 
 }

@@ -23,15 +23,15 @@ import scala.annotation.tailrec
   * The solver of the genetic algorithm, this just processes each evolution one at a time until
   * the stop condition is met.
   *
-  * @tparam Gene       type of gene
-  * @tparam Chromosome type of chromosome
+  * @tparam G type of gene
+  * @tparam C type of chromosome
   * @author Edd Spencer
   */
-trait GeneticSolver[Gene, Chromosome] extends HasGeneticStats {
+trait GeneticSolver[G, C] extends HasGeneticStats {
 
-  this: GeneticAlgorithm[Gene, Chromosome]
-    with GeneticOperations[Gene, Chromosome]
-    with GeneProducer[Gene] =>
+  this: GeneticAlgorithm[G, C]
+    with GeneticOperations[G, C]
+    with GeneProducer[G] =>
 
   val config: HasGeneticConfig
 
@@ -69,7 +69,7 @@ trait GeneticSolver[Gene, Chromosome] extends HasGeneticStats {
     * @return new pool of chromosomes
     */
   protected[populus] def randomPool(): Pool = time(GeneticStatsKeys.randomPool.toString) {
-    for {_ <- 1 to config.populationSize} yield toChromosome(geneStream)
+    for {_ <- 1 to config.populationSize} yield createChromosome(geneStream)
   }
 
   /**
@@ -95,7 +95,7 @@ trait GeneticSolver[Gene, Chromosome] extends HasGeneticStats {
     * @param chromosome chromosome to score
     * @return
     */
-  protected def unfitness(chromosome: Chromosome): Double = 1.0 - fitness(chromosome)
+  protected def unfitness(chromosome: Chromosome[C]): Double = 1.0 - chromosome.fitness
 
   /**
     * Select the fittest chromosomes from the pool, will only take cutOff percentage of the

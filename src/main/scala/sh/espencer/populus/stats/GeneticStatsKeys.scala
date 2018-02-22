@@ -19,5 +19,11 @@ package sh.espencer.populus.stats
   * Genetic algorithm stats keys
   */
 object GeneticStatsKeys extends Enumeration {
-  val crossover, crossoverPool, mutate, mutatePool, randomPool, select = Value
+  val crossover,
+  crossoverPool,
+  geneStream,
+  mutate,
+  mutatePool,
+  randomPool,
+  select = Value
 }

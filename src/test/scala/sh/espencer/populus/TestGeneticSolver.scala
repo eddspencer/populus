@@ -29,22 +29,23 @@ class TestGeneticSolver extends WordSpec with Matchers {
       val c35 = Iterable(5, 10, 20)
       val pool = Seq(c6, c60, c42, c35)
 
-      val selected = new NumberGeneticAlgorithm().select(pool)
+      val ga = new NumberGeneticAlgorithm()
+      val selected = ga.select(pool.map(c => ga.createChromosome(c)))
 
-      selected shouldEqual Seq(c42, c35, c6)
+      selected.map(_.data) shouldEqual Seq(c42, c35, c6)
     }
 
     "evolve until stop condition is met" in {
       val ga = new NumberGeneticAlgorithm() {
         override def reProduction(pool: Pool): Pool = {
           // Increase all chromosomes by one
-          pool.map(_.toList :+ 1)
+          pool.map(_.data.toList :+ 1).map(createChromosome)
         }
       }
 
-      val (pool, generations) = ga.evolution(Seq(Iterable(1)))
+      val (pool, generations) = ga.evolution(Seq(ga.createChromosome(Stream(1))))
       generations shouldEqual 41
-      pool.head.sum shouldEqual 42
+      pool.head.data.sum shouldEqual 42
     }
 
     "re-produce" in {
@@ -66,7 +67,9 @@ class TestGeneticSolver extends WordSpec with Matchers {
         }
       }
 
-      ga.reProduction(0 to 4 map (Iterable(_)))
+      ga.reProduction(0 to 4 map { i =>
+        ga.createChromosome(Stream(i))
+      })
       val times = List(
         crossoverCalled,
         mutateCalled,

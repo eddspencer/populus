@@ -21,13 +21,12 @@ import sh.espencer.populus.examples.NumberGeneticAlgorithm
 class TestGeneticOperations extends WordSpec with Matchers {
 
   "GeneticOperations" when {
-    type Chromosome = Iterable[Int]
-
     "crossover population" should {
 
       "do nothing on small pool" in {
-        val pool = Seq(Iterable(1, 3, 4))
-        val crossed = new NumberGeneticAlgorithm().crossoverPool(pool)
+        val ga = new NumberGeneticAlgorithm()
+        val pool = Seq(Iterable(1, 3, 4)).map(ga.createChromosome)
+        val crossed = ga.crossoverPool(pool)
         crossed shouldEqual pool
       }
 
@@ -44,14 +43,14 @@ class TestGeneticOperations extends WordSpec with Matchers {
         val ga = new NumberGeneticAlgorithm() {
           // Mark all crossed chromosomes
           override def crossover(
-            c1: Chromosome, c2: Chromosome
-          ): (Chromosome, Chromosome) = (nextGeneration, nextGeneration)
+            c1: Iterable[Int], c2: Iterable[Int]
+          ): (Iterable[Int], Iterable[Int]) = (nextGeneration, nextGeneration)
         }
         val pool = ga.randomPool()
         val crossed = ga.crossoverPool(pool)
 
         val growth = crossed.size - pool.size
-        val nextGenSize = crossed.count(_.eq(nextGeneration))
+        val nextGenSize = crossed.count(_.data.eq(nextGeneration))
         nextGenSize shouldEqual growth
       }
 
@@ -87,14 +86,14 @@ class TestGeneticOperations extends WordSpec with Matchers {
         val nextGeneration = Iterable(42)
         val ga = new NumberGeneticAlgorithm() {
           // Mark all mutated chromosomes
-          override def mutate(chromosome: Chromosome): Chromosome = nextGeneration
+          override def mutate(chromosome: Iterable[Int]): Iterable[Int] = nextGeneration
         }
 
         val pool = ga.randomPool()
         val mutated = ga.mutatePool(pool)
 
         val growth = mutated.size - pool.size
-        val nextGenSize = mutated.count(_.eq(nextGeneration))
+        val nextGenSize = mutated.count(_.data.eq(nextGeneration))
         nextGenSize shouldEqual growth
       }
 
@@ -103,10 +102,11 @@ class TestGeneticOperations extends WordSpec with Matchers {
     "mutating chromosome" should {
 
       "randomly mutate genes" in {
-        val chromosome = 1 to 100
-        val mutated = new NumberGeneticAlgorithm(100).mutate(chromosome)
-        mutated.size shouldEqual chromosome.size
-        mutated should not equal chromosome
+        val chromosomeData = 1 to 100
+        val ga = new NumberGeneticAlgorithm(100)
+        val mutated = ga.mutate(chromosomeData)
+        mutated.size shouldEqual chromosomeData.size
+        mutated should not equal chromosomeData
       }
 
     }

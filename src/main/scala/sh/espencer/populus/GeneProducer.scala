@@ -15,36 +15,39 @@
  */
 package sh.espencer.populus
 
+import sh.espencer.populus.stats.{GeneticStatsKeys, HasGeneticStats}
+
 import scala.util.Random
 
 /**
   * Gene producer creates genes for creation of chromosomes
   *
-  * @tparam Gene type of a gene
+  * @tparam G type of a gene
   * @author Edd Spencer
   */
-trait GeneProducer[Gene] {
+trait GeneProducer[G] {
 
   /**
     * Stream of genes
     *
     * @return stream to produce genes
     */
-  protected def geneStream: Stream[Gene]
+  protected def geneStream: Stream[G]
 
 }
 
 /**
   * Randomly selects genes from a pool of all possible genes
   *
-  * @tparam Gene type of a gene
+  * @tparam G type of a gene
   * @author Edd Spencer
   */
-trait RandomGeneProducer[Gene] extends GeneProducer[Gene] {
+trait RandomGeneProducer[G] extends GeneProducer[G] with HasGeneticStats {
 
-  protected val genePool: Array[Gene]
+  protected val genePool: Array[G]
 
-  override protected[populus] def geneStream: Stream[Gene] = {
+  override protected[populus] def geneStream: Stream[G] =
+    time(GeneticStatsKeys.geneStream.toString) {
     genePool(Random.nextInt(genePool.length)) #:: geneStream
   }
 }

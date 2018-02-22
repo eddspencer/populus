@@ -18,16 +18,30 @@ package sh.espencer.populus
 import scala.collection.Iterable
 
 /**
+  * Wrapper class that caches the fitness of a chromosome
+  *
+  * @param data chromosome data
+  * @param ga   genetic algorithm reference for calculating fitness
+  * @tparam T type of chromosome data
+  */
+sealed class Chromosome[T](
+  val data: T,
+  ga: GeneticAlgorithm[_, T]
+) {
+  lazy val fitness: Double = ga.fitness(data)
+}
+
+/**
   * Genetic algorithm defines the functions that can be configured to alter the genetic evolution
   * of the process.
   *
-  * @tparam Gene       type of gene
-  * @tparam Chromosome type of chromosome
+  * @tparam G type of gene
+  * @tparam C type of chromosome
   * @author Edd Spencer
   */
-trait GeneticAlgorithm[Gene, Chromosome] {
+trait GeneticAlgorithm[G, C] {
 
-  type Pool = Seq[Chromosome]
+  type Pool = Seq[Chromosome[C]]
 
   /**
     * Fitness function creates a score for a chromosome
@@ -35,7 +49,7 @@ trait GeneticAlgorithm[Gene, Chromosome] {
     * @param chromosome chromosome to score
     * @return the score
     */
-  def fitness(chromosome: Chromosome): Double
+  def fitness(chromosome: C): Double
 
   /**
     * Stop condition defines when to stop evolution
@@ -47,12 +61,32 @@ trait GeneticAlgorithm[Gene, Chromosome] {
   protected def stopCondition(pool: Pool, generation: Int): Boolean
 
   /**
+    * Builds a chromosome data from a stream of genes
+    *
+    * @param genes gene sequence
+    * @return chromosome
+    */
+  protected def toChromosome(genes: Stream[G]): C
+
+  /**
     * Builds a chromosome object from a stream of genes
     *
     * @param genes gene sequence
     * @return chromosome
     */
-  protected def toChromosome(genes: Stream[Gene]): Chromosome
+  private[populus] def createChromosome(genes: Stream[G]): Chromosome[C] = {
+    createChromosome(toChromosome(genes))
+  }
+
+  /**
+    * Builds a chromosome object from chromosome data
+    *
+    * @param data data
+    * @return chromosome
+    */
+  private[populus] def createChromosome(data: C): Chromosome[C] = {
+    new Chromosome(data, this)
+  }
 
   /**
     * Converts a chromosome to a stream of genes
@@ -60,33 +94,33 @@ trait GeneticAlgorithm[Gene, Chromosome] {
     * @param chromosome chromosome to convert
     * @return gene sequence
     */
-  protected def fromChromosome(chromosome: Chromosome): Stream[Gene]
+  protected def fromChromosome(chromosome: C): Stream[G]
 
 }
 
 /**
   * Standard genetic algorithm that randomly selects genes from a pool
   *
-  * @tparam Gene       type of gene
-  * @tparam Chromosome type of chromosome
+  * @tparam G type of gene
+  * @tparam C type of chromosome
   * @author Edd Spencer
   */
-trait StandardGeneticAlgorithm[Gene, Chromosome] extends GeneticAlgorithm[Gene, Chromosome]
-  with RandomGeneProducer[Gene]
-  with GeneticSolver[Gene, Chromosome]
-  with GeneticOperations[Gene, Chromosome]
+trait StandardGeneticAlgorithm[G, C] extends GeneticAlgorithm[G, C]
+  with RandomGeneProducer[G]
+  with GeneticSolver[G, C]
+  with GeneticOperations[G, C]
 
 /**
   * Genetic algorithm solver for chromosomes that are iterable collections of genes, uses the
   * random gene selector by default
   *
-  * @tparam Gene type of gene
+  * @tparam G type of gene
   * @author Edd Spencer
   */
-trait IterableGeneticAlgorithm[Gene] extends GeneticAlgorithm[Gene, Iterable[Gene]]
-  with RandomGeneProducer[Gene]
-  with GeneticSolver[Gene, Iterable[Gene]]
-  with GeneticOperations[Gene, Iterable[Gene]] {
+trait IterableGeneticAlgorithm[G] extends GeneticAlgorithm[G, Iterable[G]]
+  with RandomGeneProducer[G]
+  with GeneticSolver[G, Iterable[G]]
+  with GeneticOperations[G, Iterable[G]] {
 
   /**
     * Chromosome size as a method in case it is not static
@@ -98,14 +132,14 @@ trait IterableGeneticAlgorithm[Gene] extends GeneticAlgorithm[Gene, Iterable[Gen
   /**
     * If some sticky genes are set then will always be included in every chromosome
     */
-  val stickyGenes: Set[Gene] = Set.empty
+  val stickyGenes: Set[G] = Set.empty
 
   /**
     * Cache the size of sticky genes in case the iterable re-calculates
     */
   private lazy val numStickyGenes: Int = stickyGenes.size
 
-  override def toChromosome(genes: Stream[Gene]): Iterable[Gene] = {
+  override def toChromosome(genes: Stream[G]): Iterable[G] = {
     val newGenes = genes
       .filter(!stickyGenes.contains(_))
       .take(Math.max(0, chromosomeSize() - numStickyGenes))
@@ -113,7 +147,7 @@ trait IterableGeneticAlgorithm[Gene] extends GeneticAlgorithm[Gene, Iterable[Gen
     chromosome
   }
 
-  override protected def fromChromosome(chromosome: Iterable[Gene]): Stream[Gene] = {
+  override def fromChromosome(chromosome: Iterable[G]): Stream[G] = {
     chromosome.toStream
   }
 

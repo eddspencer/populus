@@ -24,8 +24,8 @@ class TestGeneticAlgorithm extends WordSpec with Matchers {
     "always include sticky genes" in {
       val ga = new NumberGeneticAlgorithm(stickyGenes = Set(17))
       val (pool, _) = ga.evolution()
-      pool.head.sum shouldEqual 42
-      pool.foreach(chromosome => {
+      pool.head.data.sum shouldEqual 42
+      pool.map(_.data).foreach(chromosome => {
         chromosome should contain(17)
       })
     }
@@ -33,7 +33,7 @@ class TestGeneticAlgorithm extends WordSpec with Matchers {
     "only include one of each sticky genes" in {
       val ga = new NumberGeneticAlgorithm(stickyGenes = Set(1, 2))
       val (pool, _) = ga.evolution()
-      pool.foreach(chromosome => {
+      pool.map(_.data).foreach(chromosome => {
         chromosome should contain(1)
         chromosome should contain(2)
         chromosome.count(_ === 1) shouldEqual 1

@@ -24,14 +24,14 @@ import scala.util.Random
   * need to be updated, and you can alter the algorithm by just changing the genetic algorithm
   * functions and configuration parameters
   *
-  * @tparam Gene       type of gene
-  * @tparam Chromosome type of chromosome
+  * @tparam G type of gene
+  * @tparam C type of chromosome
   * @author Edd Spencer
   */
-trait GeneticOperations[Gene, Chromosome] {
+trait GeneticOperations[G, C] {
 
-  this: GeneticAlgorithm[Gene, Chromosome]
-    with GeneProducer[Gene]
+  this: GeneticAlgorithm[G, C]
+    with GeneProducer[G]
     with HasGeneticStats =>
 
   val config: HasGeneticConfig
@@ -58,7 +58,8 @@ trait GeneticOperations[Gene, Chromosome] {
         parents <- bottom.zip(top)
         if config.crossoverRate > Random.nextFloat
       ) yield {
-        crossover(parents._1, parents._2)
+        val (c1, c2) = crossover(parents._1.data, parents._2.data)
+        (createChromosome(c1), createChromosome(c2))
       }
 
       val offSprings = crossed.unzip
@@ -72,16 +73,16 @@ trait GeneticOperations[Gene, Chromosome] {
     * Crosses two chromosomes by randomly swapping genes pairs between the two using the given
     * crossover rate
     *
-    * @param c1 chromosome 1
-    * @param c2 chromosome 2
+    * @param cData1 chromosome data 1
+    * @param cData2 chromosome data 2
     * @return new pair of chromosomes
     */
   protected[populus] def crossover(
-    c1: Chromosome,
-    c2: Chromosome
-  ): (Chromosome, Chromosome) = time(GeneticStatsKeys.crossover.toString) {
-    val s1 = fromChromosome(c1)
-    val s2 = fromChromosome(c2)
+    cData1: C,
+    cData2: C
+  ): (C, C) = time(GeneticStatsKeys.crossover.toString) {
+    val s1 = fromChromosome(cData1)
+    val s2 = fromChromosome(cData2)
     val offSprings = s1.zip(s2).map {
       case (g1, g2) =>
         if (config.crossoverRate > Random.nextFloat) (g1, g2) else (g2, g1)
@@ -100,7 +101,7 @@ trait GeneticOperations[Gene, Chromosome] {
     pool: Pool
   ): Pool = time(GeneticStatsKeys.mutatePool.toString) {
     val mutations = for (chromosome <- pool if config.mutationRate > Random.nextFloat) yield {
-      mutate(chromosome)
+      createChromosome(mutate(chromosome.data))
     }
     mutations ++ pool
   }
@@ -109,13 +110,13 @@ trait GeneticOperations[Gene, Chromosome] {
     * Mutates random genes in the chromosome, selecting new genes from the gene pool using the
     * given mutation rate
     *
-    * @param chromosome starting chromosome
+    * @param cData starting chromosome
     * @return new mutated chromosome
     */
   protected[populus] def mutate(
-    chromosome: Chromosome
-  ): Chromosome = time(GeneticStatsKeys.mutate.toString) {
-    val mutated = fromChromosome(chromosome).map(gene =>
+    cData: C
+  ): C = time(GeneticStatsKeys.mutate.toString) {
+    val mutated = fromChromosome(cData).map(gene =>
       if (config.mutationRate > Random.nextFloat) geneStream.head else gene
     )
     toChromosome(mutated)

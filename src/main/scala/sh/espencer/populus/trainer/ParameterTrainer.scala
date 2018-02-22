@@ -18,7 +18,7 @@ package sh.espencer.populus.trainer
 import com.typesafe.scalalogging.LazyLogging
 import org.scalameter.picklers.noPickler._
 import org.scalameter.{Bench, Gen, _}
-import sh.espencer.populus.{GeneticAlgorithm, GeneticConfig, GeneticSolver}
+import sh.espencer.populus.{Chromosome, GeneticAlgorithm, GeneticConfig, GeneticSolver}
 
 import scala.collection.mutable
 import scala.util.Random
@@ -43,7 +43,7 @@ case class ConfigBounds(
   *
   * @author Edd Spencer
   */
-trait ParameterTrainer[Gene, Chromosome] extends Bench.LocalTime with LazyLogging {
+trait ParameterTrainer[G, C] extends Bench.LocalTime with LazyLogging {
 
   /**
     * Create a new genetic solver with a given config
@@ -51,8 +51,8 @@ trait ParameterTrainer[Gene, Chromosome] extends Bench.LocalTime with LazyLoggin
     * @param config configuration
     * @return new solver instance
     */
-  protected def createSolver(config: GeneticConfig): GeneticSolver[Gene, Chromosome]
-    with GeneticAlgorithm[Gene, Chromosome]
+  protected def createSolver(config: GeneticConfig): GeneticSolver[G, C]
+    with GeneticAlgorithm[G, C]
 
   /**
     * Defines a successful evolution of the algorithm
@@ -60,7 +60,7 @@ trait ParameterTrainer[Gene, Chromosome] extends Bench.LocalTime with LazyLoggin
     * @param pool population
     * @return successful or not
     */
-  protected def success(pool: Seq[Chromosome]): Boolean
+  protected def success(pool: Seq[Chromosome[C]]): Boolean
 
   /**
     * Defined the bound for configuration parameters, a random number between these bounds will
